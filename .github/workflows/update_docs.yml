@@ -1,0 +1,63 @@
+name: Update Documentation
+
+on:
+    workflow_dispatch:
+
+    push:
+        branches:
+            - main
+        paths:
+        - 'src/**'
+
+jobs:
+    update-docs:
+        runs-on: ubuntu-latest
+        steps: 
+            - name: Checkout
+              uses: actions/checkout@v3
+              with:
+                fetch-depth: 0
+            
+            - name: Configure Git for GitHub Actions
+              run: |
+                git config --global user.name "github-actions[bot]"
+                git config --global user.email "github-actions[bot]@users.noreply.github.com"
+                git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+            - name: Install Python
+              uses: actions/setup-python@v3
+              with:
+                python-version: "3.9"
+            
+            - name: Install dependencies
+              run: pip install -r workflow_requirements.txt #Install dependencies
+
+            - name: Install ollama
+              run: curl -fsSL https://ollama.com/install.sh | sh
+
+            - name: Pull ollama model
+              run: ollama pull llama3.2
+                    
+            - name: Run agent
+              run: python agent.py
+            
+            - name: checkout to test-branch
+              if: github.ref != 'refs/heads/main'
+              uses: actions/checkout@v3
+              with:
+                ref: ${{ github.ref }}
+
+            - name: Merge pull request from agent (test-mode, if not on the main-branch)
+              if: github.ref != 'refs/heads/main'
+              run: |
+                git fetch origin $BRANCH_NAME
+                git merge origin/$BRANCH_NAME --allow-unrelated-histories
+                git push -d origin $BRANCH_NAME
+                git push origin HEAD
+                
+            - name: Create pull request (only if running on main)
+              if: github.ref == 'refs/heads/main'
+              run: gh pr create -B main -H $BRANCH_NAME --fill-first
+              env:
+                GH_TOKEN: ${{ github.token }}
+              
