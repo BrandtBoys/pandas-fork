@@ -104,11 +104,24 @@ def _pprint_seq(
     seq: ListLike, _nest_lvl: int = 0, max_seq_items: int | None = None, **kwds: Any
 ) -> str:
     """
-    internal. pprinter for iterables. you should probably use pprint_thing()
-    rather than calling this directly.
+Internal function to print iterables in a human-readable format.
 
-    bounds length of printed sequence, depending on options
-    """
+This function is intended for internal use only. Instead of calling this function directly,
+consider using `pprint_thing()` which provides similar functionality with fewer potential issues.
+
+The printed sequence's length is bounded by the provided options, including the maximum number
+of items to display (`max_seq_items`) and the nesting level (_nest_lvl).
+
+Parameters:
+seq (ListLike): The iterable to be printed.
+_nest_lvl (int): The current nesting level. Defaults to 0.
+max_seq_items (int | None): The maximum number of items to display in the sequence. If False, no limit is applied.
+**kwds (Any): Additional keyword arguments for customizing the printing process.
+
+Returns:
+str: A string representation of the input iterable in a human-readable format.
+"""
+
     if isinstance(seq, set):
         fmt = "{{{body}}}"
     elif isinstance(seq, frozenset):

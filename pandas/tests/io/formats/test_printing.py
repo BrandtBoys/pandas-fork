@@ -83,7 +83,12 @@ class TestPPrintThing:
         assert printing.pprint_thing(MyMapping()) == "{'a': 4, 'b': 4}"
 
     def test_repr_frozenset(self):
-        assert printing.pprint_thing(frozenset([1, 2])) == "frozenset({1, 2})"
+        """
+Tests the representation of a frozenset using the pprint_thing function.
+
+This test case checks that the output of pprint_thing for a given frozenset is as expected.
+"""
+assert printing.pprint_thing(frozenset([1, 2])) == "frozenset({1, 2})"
 
 
 class TestFormatBase:
